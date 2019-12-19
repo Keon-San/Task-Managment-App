@@ -1,0 +1,17 @@
+{% extends "taskmanager/base_generic.html" %}
+
+{% block title %}Task List: {{ list_name }}{% endblock %}
+	
+{% block content %}
+{% for task in tasks_list %}
+	<div class="task_simple">
+	<a href="/taskmanager/viewtask?id={{ task.id }}"><b>{{ task.title }}</b></a>
+	<p style="color:#808080">{{ task.description }}</p>
+	<p>Priority: {{ task.priority }}</p>
+	{% if task.claimants.count > 0 %}
+		<p>Claimants: {% for claim in task.claimants.all %}{{ claim.name }} {% endfor %}
+	{% endif %}
+	<br>
+	</div><hr>
+{% endfor %}
+{% endblock %}

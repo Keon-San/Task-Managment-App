@@ -25,23 +25,22 @@ class List(models.Model):
         return self.name
 
 class Task(models.Model):
-    creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_tasks')
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_tasks')
     claimants = models.ManyToManyField(User, related_name='claimed_tasks')
     title = models.CharField(max_length=10000)
-    task_list = models.ForeignKey(List, on_delete=models.CASCADE)
+    task_list = models.ForeignKey(List, on_delete=models.CASCADE, related_name='tasks')
     description = models.CharField(max_length=1000000000)
     priority = models.IntegerField()
     larger_goal = models.CharField(max_length=10000, null=True)
     estimate_end_date = models.DateField()
-    #WIP OTHER DATA
 
     def __str__(self):
         return self.title
 
 class Note(models.Model):
-    title = models.CharField(max_length=100)
     text = models.CharField(max_length=1000000000000)
     poster = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='notes')
     
     def __str__(self):
-        return self.title
+        return self.text

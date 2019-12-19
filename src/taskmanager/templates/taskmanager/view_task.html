@@ -1,0 +1,24 @@
+{% extends "taskmanager/base_generic.html" %}
+
+{% block title %}Task: {{ task.title }}{% endblock %}
+
+{% block content %}
+<h1>Task: {{ task.title }}</h1>
+<p>Creator: {{ task.creator.name }}</p>
+<p>Description: {{ task.description }}</p>
+<p>Task List: <a href="/taskmanager/viewlist?name={{ task.task_list.name }}"> {{ task.task_list.name }}</a></p>
+<p>Priority: {{ task.priority }}</p>
+<p>Larger Goal: {{ task.larger_goal }}</p>
+<p>Estimated End Date: {{ task.estimate_end_date }}</p>
+{% if task.notes.count > 0 %}
+	<br>
+	<hr>
+	<h1>Notes:</h1>
+	{% for note in task.notes.all|dictsort:"id" %}
+		<div id="note">
+			<p>Poster: {{ note.poster.name }}</p>
+			<p>{{ note.text }}</p>
+		</div>
+	{% endfor %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,30 @@
+{% load static %}
+
+<html>
+	<head>
+		<title>{% block title %}{% endblock %}</title>
+		<link rel="stylesheet" href="{% static 'taskmanager/base_generic.css' %}">
+	</head>
+	<body>
+		<header>
+			{% block header %}
+				<!-- WIP -->
+			{% endblock %}
+		</header>
+		<nav>
+			{% block nav %}
+				<ul>
+					<li><a href="{% url 'taskmanager:index' %}">Home</a></li>
+				</ul>
+			{% endblock %}
+		</nav>
+		<br>
+		{% block content %}
+		{% endblock %}
+		<footer>
+			{% block footer %}
+				<!-- WIP -->
+			{% endblock %}
+		</footer>
+	</body>
+</html>
