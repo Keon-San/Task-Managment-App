@@ -3,6 +3,7 @@
 {% block title %}Task: {{ task.title }}{% endblock %}
 
 {% block content %}
+{% if can_view %}
 <h1>Task: {{ task.title }}</h1>
 <p>Creator: {{ task.creator.name }}</p>
 <p>Description: {{ task.description }}</p>
@@ -15,10 +16,16 @@
 	<hr>
 	<h1>Notes:</h1>
 	{% for note in task.notes.all|dictsort:"id" %}
-		<div id="note">
+		<div class="seperated">
+			{% if can_admin or user.email == note.poster %}
+				<b><a href="/taskmanager/deletenote?id={{ note.id}}">Delete</a></b>
+			{% endif %}
 			<p>Poster: {{ note.poster.name }}</p>
 			<p>{{ note.text }}</p>
 		</div>
 	{% endfor %}
+{% endif %}
+{% else %}
+<b> No Access</b>
 {% endif %}
 {% endblock %}

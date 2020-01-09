@@ -1,0 +1,13 @@
+{% extends "taskmanager/base_generic.html" %}
+
+{% block title %}Task Manager: Home{% endblock %}
+
+{% block content %}
+<h1>Lists</h1>
+{% for list in lists %}
+	<div class='seperated'>
+		<h2><a href='/taskmanager/viewlist?name={{ list.name }}'>List: {{ list.name }}</a></h2>
+		<p>Team: {{ list.team }}</p>
+	</div>
+{% endfor %}
+{% endblock %}

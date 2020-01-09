@@ -19,4 +19,5 @@ from django.urls import path, include
 urlpatterns = [
     path('taskmanager/', include('taskmanager.urls', namespace='taskmanager')),
     path('admin/', admin.site.urls),
+    path('auth/', include('social_django.urls', namespace='social')),
 ]

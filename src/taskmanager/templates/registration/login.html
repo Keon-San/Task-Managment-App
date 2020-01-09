@@ -2,21 +2,16 @@
 
 <html>
 	<head>
-		<title>{% block title %}{% endblock %}</title>
+		<title>Task Manager: Login</title>
 		<link rel="stylesheet" href="{% static 'taskmanager/base_generic.css' %}">
 	</head>
 	<body>
 		<header>
-			{% block header %}
-				<!-- WIP -->
-			{% endblock %}
 		</header>
 		<nav>
 			
 				<ul>
 					<li><a href="{% url 'taskmanager:index' %}">Home</a></li>
-					{% block nav %}
-					{% endblock %}
 					{% if authed %}
 						<li><a href="{% url 'taskmanager:logout' %}">Logout</a></li>
 					{% else %}
@@ -25,17 +20,9 @@
 				</ul>
 			
 		</nav>
-		<br>
-		{% if authed %}
-			{% block content %}
-			{% endblock %}
-		{% else %}
-			<h1><a href="{% url 'taskmanager:login' %}">Please Log In</a></h1>
-		{% endif %}
+		<br><br><br>
+		<a href="{% url 'social:begin' 'google-oauth2' %}">Login with Google</a><br>
 		<footer>
-			{% block footer %}
-				<!-- WIP -->
-			{% endblock %}
 		</footer>
 	</body>
 </html>

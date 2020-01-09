@@ -3,6 +3,12 @@
 {% block title %}Task List: {{ list_name }}{% endblock %}
 	
 {% block content %}
+<h1>Tasks</h1>
+{% if can_add %}
+	<b><a href="/taskmanager/addtask?list={{ list_name }}">Add Task</a></b>
+{% endif %}
+<hr>
+{% if can_view %}
 {% for task in tasks_list %}
 	<div class="task_simple">
 	<a href="/taskmanager/viewtask?id={{ task.id }}"><b>{{ task.title }}</b></a>
@@ -11,7 +17,13 @@
 	{% if task.claimants.count > 0 %}
 		<p>Claimants: {% for claim in task.claimants.all %}{{ claim.name }} {% endfor %}
 	{% endif %}
+	{% if can_admin or user.email == task.creator %}
+		<b><a href="/taskmanager/deletetask?task={{ task.id }}">Delete Task</a></b>
+	{% endif %}
 	<br>
 	</div><hr>
 {% endfor %}
+{% else %}
+	<b>No Access</b>
+{% endif %}
 {% endblock %}
