@@ -3,6 +3,40 @@
 {% block title %}Task: {{ task.title }}{% endblock %}
 
 {% block content %}
+<script>
+	function getCookie(name) {
+		var cookieValue = null;
+		if (document.cookie && document.cookie !== '') {
+			var cookies = document.cookie.split(';');
+			for (var i = 0; i < cookies.length; i++) {
+				var cookie = cookies[i].trim();
+				// Does this cookie string begin with the name we want?
+				if (cookie.substring(0, name.length + 1) === (name + '=')) {
+					cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+					break;
+				}
+			}
+		}
+		return cookieValue;
+	}
+	
+	function deleter(id) {
+		var request = new XMLHttpRequest();
+		var url = 'deletenote';
+		var params = 'id=' + id;
+		request.open('POST', url, true);
+		request.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+		request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+		
+		request.onreadystatechange = function() {//Call a function when the state changes.
+			if(request.readyState == 4 && request.status == 200) {
+				location.reload(true);
+			}
+		}
+		
+		request.send(params)
+	}
+</script>
 {% if can_view %}
 <h1>Task: {{ task.title }}</h1>
 <p>Creator: {{ task.creator.name }}</p>
@@ -11,20 +45,20 @@
 <p>Priority: {{ task.priority }}</p>
 <p>Larger Goal: {{ task.larger_goal }}</p>
 <p>Estimated End Date: {{ task.estimate_end_date }}</p>
-{% if task.notes.count > 0 %}
-	<br>
-	<hr>
-	<h1>Notes:</h1>
-	{% for note in task.notes.all|dictsort:"id" %}
-		<div class="seperated">
-			{% if can_admin or user.email == note.poster %}
-				<b><a href="/taskmanager/deletenote?id={{ note.id}}">Delete</a></b>
-			{% endif %}
-			<p>Poster: {{ note.poster.name }}</p>
-			<p>{{ note.text }}</p>
-		</div>
-	{% endfor %}
-{% endif %}
+<br>
+<hr>
+<h1>Notes:</h1>
+<b><a href="/taskmanager/addnote?task={{ task.id }}">Add Note</a></b>
+<br>
+{% for note in task.notes.all|dictsort:"id" %}
+	<div class="seperated">
+		{% if can_admin or user.email == note.poster %}
+			<b><a href="javascript:deleter({{ note.id }})">Delete</a></b>
+		{% endif %}
+		<p>Poster: {{ note.poster.name }}</p>
+		<p>{{ note.text }}</p>
+	</div>
+{% endfor %}
 {% else %}
 <b> No Access</b>
 {% endif %}

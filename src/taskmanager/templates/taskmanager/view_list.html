@@ -3,6 +3,40 @@
 {% block title %}Task List: {{ list_name }}{% endblock %}
 	
 {% block content %}
+<script>
+	function getCookie(name) {
+		var cookieValue = null;
+		if (document.cookie && document.cookie !== '') {
+			var cookies = document.cookie.split(';');
+			for (var i = 0; i < cookies.length; i++) {
+				var cookie = cookies[i].trim();
+				// Does this cookie string begin with the name we want?
+				if (cookie.substring(0, name.length + 1) === (name + '=')) {
+					cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+					break;
+				}
+			}
+		}
+		return cookieValue;
+	}
+	
+	function deleter(id) {
+		var request = new XMLHttpRequest();
+		var url = 'deletetask';
+		var params = 'id=' + id;
+		request.open('POST', url, true);
+		request.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+		request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+		
+		request.onreadystatechange = function() {//Call a function when the state changes.
+			if(request.readyState == 4 && request.status == 200) {
+				location.reload(true);
+			}
+		}
+		
+		request.send(params)
+	}
+</script>
 <h1>Tasks</h1>
 {% if can_add %}
 	<b><a href="/taskmanager/addtask?list={{ list_name }}">Add Task</a></b>
@@ -18,7 +52,7 @@
 		<p>Claimants: {% for claim in task.claimants.all %}{{ claim.name }} {% endfor %}
 	{% endif %}
 	{% if can_admin or user.email == task.creator %}
-		<b><a href="/taskmanager/deletetask?task={{ task.id }}">Delete Task</a></b>
+		<b><a href="javascript:deleter({{ task.id }});">Delete Task</a></b>
 	{% endif %}
 	<br>
 	</div><hr>

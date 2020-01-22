@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MaxLengthValidator
 
 class Role(models.Model):
     class Meta:
@@ -34,16 +35,16 @@ class Task(models.Model):
     claimants = models.ManyToManyField(User, related_name='claimed_tasks')
     title = models.CharField(max_length=10000)
     task_list = models.ForeignKey(List, on_delete=models.CASCADE, related_name='tasks')
-    description = models.CharField(max_length=1000000000)
+    description = models.TextField(max_length=1000000000, validators=[MaxLengthValidator(1000000000)])
     priority = models.IntegerField()
-    larger_goal = models.CharField(max_length=10000, null=True)
+    larger_goal = models.TextField(max_length=10000, null=True, validators=[MaxLengthValidator(10000)])
     estimate_end_date = models.DateField(null=True)
 
     def __str__(self):
         return self.title
 
 class Note(models.Model):
-    text = models.CharField(max_length=1000000000000)
+    text = models.TextField(max_length=1000000000000, validators=[MaxLengthValidator(1000000000000)])
     poster = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='notes')
     

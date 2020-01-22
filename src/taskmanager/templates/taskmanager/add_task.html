@@ -1,0 +1,13 @@
+{% extends "taskmanager/base_generic.html" %}
+
+{% block title %}Add Task{% endblock %}
+
+{% block content %}
+<br>
+<form action="/taskmanager/addtask" method="post">
+	{% csrf_token %}
+    {{ form }}
+	<input type="hidden" value="{{ list }}" name="list">
+	<input type="submit" value="Submit">
+</form>
+{% endblock %}
