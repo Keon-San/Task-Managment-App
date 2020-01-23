@@ -1,0 +1,47 @@
+{% extends "taskmanager/base_generic.html" %}
+
+{% block title %}Assign Role{% endblock %}
+
+{% block content %}
+<br>
+<script>
+var dictionary = [];
+{% for item, value in teamMax.items %}
+	dictionary.push({key: "{{ item }}", value: "{{ value }}"});
+{% endfor %}
+
+function updateMax() {
+	var e = document.getElementById("teamSel");
+	if (e.selectedIndex == null) e.selectedIndex = 0;
+	var selected = e.options[e.selectedIndex].value;
+	for (var i = 0; i < dictionary.length; i++) {
+		if (dictionary[i].key == selected) {
+			selected = i;
+			break;
+		}
+	}
+	
+	document.getElementById("levelAdd").max = dictionary[selected].value;
+	document.getElementById("addLab").innerHTML = "Select the access level you want to assign. The maximum is " + dictionary[selected].value;
+}
+</script>
+<form action="/taskmanager/addrole" method="post" id="roleform">
+	{% csrf_token %}
+	<label for="userSel">User to assign</label><br>
+    <select name="targetUser" form="roleform" id="userSel">
+		{% for user in allowedUsers %}
+			<option value="{{ user.email }}">{{ user.name }}</option>
+		{% endfor %}
+	</select><br>
+	<label for="teamSel">Select the team to assign the user to</label><br>
+	<select name="teamSelect" form="roleform" id="teamSel" onchange="updateMax()">
+		{% for team in allowedTeams %}
+			<option value="{{ team }}">{{ team }}</option>
+		{% endfor %}
+	</select><br>
+	<label for="level" id="addLab">Select the access level you want to assign</label>
+	<input type="number" id="levelAdd" name="level" min="1">
+	<input type="submit" value="Submit">
+	<script>updateMax();</script>
+</form>
+{% endblock %}

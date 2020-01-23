@@ -9,15 +9,17 @@ ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
+  white-space:nowrap;
 }
 
 li {
 	float: left;
+	display: inline;
 }
 
 li a {
 	display: block;
-	width: 60px;
+	width: 90px;
 	padding: 8px;
 	background-color: #dddddd;
 	text-decoration: none;

@@ -4,7 +4,7 @@ from django.template import loader
 import sys
 
 from .models import Task, List, User, Role, Note
-from .forms import NoteForm, TaskForm
+from .forms import NoteForm, TaskForm, EndDateForm
 
 # Create your views here.
 
@@ -81,6 +81,7 @@ def getTask(request):
         'can_view': can_view,
         'can_claim': can_claim,
         'can_admin': can_admin,
+        'not_claimed': task.claimants.filter(email=request.user.email).count() == 0,
         'user': user,
     }
     return HttpResponse(template.render(context, request))
@@ -233,3 +234,111 @@ def deleteTask(request):
                         task.delete()
 
                 return HttpResponse('')
+
+def giveRole(request):
+        if request.method == 'POST':
+                user = User.objects.filter(email=request.user.email)[0]
+                userToAssign = User.objects.filter(email=request.POST.get('targetUser', ''))[0]
+                role_team = request.POST.get('teamSelect', '')
+                level = request.POST.get('level', '')
+                roles = user.roles.all()
+                allowed = False
+                for x in roles:
+                        if x.role_team == role_team and x.access_level >= int(level):
+                                allowed = True
+
+                if allowed:
+                        if (Role.objects.filter(role_team=role_team, access_level=level).count == 0):
+                                newRole = Role(role_team = role_team, access_level=level)
+                                newRole.save()
+                        role = Role.objects.filter(role_team=role_team, access_level=level)[0]
+                        userToAssign.roles.add(role)
+                        return HttpResponseRedirect('/taskmanager/')
+                else:
+                        context = {
+                                'authed': request.user.is_authenticated,
+                        }
+                        template = loader.get_template('taskmanager/denied.html')
+                        return HttpResponse(template.render(context, request))
+                        
+        else:
+                user = User.objects.filter(email=request.user.email)[0]
+                allowedTeams = []
+                for x in user.roles.all():
+                        allowedTeams.append(x.role_team)
+                allowedTeams = list(dict.fromkeys(allowedTeams))
+                teamMax = {}
+                for x in allowedTeams:
+                        biggest = 0
+                        for y in user.roles.all():
+                                if y.role_team == x and y.access_level > biggest:
+                                        biggest = y.access_level
+                        teamMax.update({x: biggest})
+
+                allowedUsers = list(User.objects.all())
+                allowedUsers.remove(user)
+
+                print(allowedUsers);
+                context = {
+                        'teamMax': teamMax,
+                        'allowedUsers': allowedUsers,
+                        'allowedTeams': allowedTeams,
+                        'authed': request.user.is_authenticated,
+                }
+                template = loader.get_template('taskmanager/add_role.html')
+                return HttpResponse(template.render(context, request))
+
+def claimTask(request):
+        can_claim = False
+        user = User.objects.filter(email=request.user.email)[0]
+        task = Task.objects.filter(id=request.POST.get('id', ''))[0]
+        ourList = task.task_list
+        if request.user.is_authenticated:
+                for x in user.roles.all():
+                        if x.role_team == ourList.team:
+                                if x.access_level >= ourList.can_claim:
+                                        can_claim = True
+
+        if can_claim and task.claimants.filter(email=user.email).count() == 0:
+                task.claimants.add(user)
+        return HttpResponse('')
+
+def editEndDate(request):
+        if request.method == "POST":
+                user = User.objects.filter(email=request.user.email)[0]
+                task = Task.objects.filter(id=request.POST.get('task', ''))[0]
+                if task.claimants.filter(email=user.email) == 0:
+                        context = {
+                                'authed': request.user.is_authenticated,
+                        }
+                        template = loader.get_template('taskmanager/denied.html')
+                        return HttpResponse(template.render(context, request))
+                else:
+                        form = EndDateForm(request.POST)
+                        if form.is_valid():
+                                task.estimate_end_date = form.cleaned_data["date"]
+                                print(task.estimate_end_date)
+                                task.save()
+                                return HttpResponseRedirect("/taskmanager/viewtask?id=" + request.POST.get('task', ''))
+        else:
+                user = User.objects.filter(email=request.user.email)[0]
+                task = Task.objects.filter(id=request.GET.get('id', ''))[0]
+                if task.claimants.filter(email=user.email) == 0:
+                        context = {
+                                'authed': request.user.is_authenticated,
+                        }
+                        template = loader.get_template('taskmanager/denied.html')
+                        return HttpResponse(template.render(context, request))
+                else:
+                        if task.estimate_end_date == None:
+                                form = EndDateForm()
+                        else:
+                                form = EndDateForm({'date': task.estimate_end_date})
+                        context = {
+                                'task': request.GET.get('id', ''),
+                                'form': form,
+                                'authed': request.user.is_authenticated,
+                        }
+
+                        template = loader.get_template('taskmanager/edit_end.html')
+                        return HttpResponse(template.render(context, request))
